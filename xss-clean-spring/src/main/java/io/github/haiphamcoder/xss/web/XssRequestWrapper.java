@@ -1,8 +1,11 @@
 package io.github.haiphamcoder.xss.web;
 
 import io.github.haiphamcoder.xss.CleanerService;
+import io.github.haiphamcoder.xss.config.XssProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -11,20 +14,59 @@ import java.util.*;
  */
 public class XssRequestWrapper extends HttpServletRequestWrapper {
 
+    private static final Logger logger = LoggerFactory.getLogger(XssRequestWrapper.class);
+
     /**
      * The cleaner to use.
      */
     private final CleanerService cleaner;
 
     /**
+     * The XSS properties.
+     */
+    private final XssProperties properties;
+
+    /**
      * Constructs a new XssRequestWrapper.
      * 
      * @param request The request to wrap.
      * @param cleaner The cleaner to use.
+     * @param properties The XSS properties.
      */
-    public XssRequestWrapper(HttpServletRequest request, CleanerService cleaner) {
+    public XssRequestWrapper(HttpServletRequest request, CleanerService cleaner, XssProperties properties) {
         super(request);
         this.cleaner = cleaner;
+        this.properties = properties;
+    }
+
+    /**
+     * Cleans a value with logging and exception handling.
+     * 
+     * @param value The value to clean.
+     * @param context The context for logging (e.g., parameter name).
+     * @return The cleaned value.
+     */
+    private String cleanValue(String value, String context) {
+        if (value == null) {
+            return null;
+        }
+        
+        String cleaned = cleaner.clean(value);
+        
+        // Check if content was changed (XSS detected)
+        if (!value.equals(cleaned)) {
+            // Log violation if enabled
+            if (properties.isLogViolation()) {
+                logger.warn("XSS violation detected in {}: '{}' -> '{}'", context, value, cleaned);
+            }
+            
+            // Throw exception if enabled
+            if (properties.isThrowOnViolation()) {
+                throw new SecurityException("XSS violation detected in " + context + ": " + value);
+            }
+        }
+        
+        return cleaned;
     }
 
     /**
@@ -36,7 +78,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getParameter(String name) {
         String value = super.getParameter(name);
-        return cleaner.clean(value);
+        return cleanValue(value, "parameter[" + name + "]");
     }
 
     /**
@@ -51,7 +93,9 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         if (values == null) {
             return new String[0];
         }
-        return Arrays.stream(values).map(cleaner::clean).toArray(String[]::new);
+        return Arrays.stream(values)
+                .map(value -> cleanValue(value, "parameter[" + name + "]"))
+                .toArray(String[]::new);
     }
 
     /**
@@ -64,7 +108,9 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         Map<String, String[]> map = super.getParameterMap();
         Map<String, String[]> cleaned = new HashMap<>();
         for (Map.Entry<String, String[]> e : map.entrySet()) {
-            String[] newVals = Arrays.stream(e.getValue()).map(cleaner::clean).toArray(String[]::new);
+            String[] newVals = Arrays.stream(e.getValue())
+                    .map(value -> cleanValue(value, "parameter[" + e.getKey() + "]"))
+                    .toArray(String[]::new);
             cleaned.put(e.getKey(), newVals);
         }
         return cleaned;
@@ -79,6 +125,6 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getHeader(String name) {
         String value = super.getHeader(name);
-        return cleaner.clean(value);
+        return cleanValue(value, "header[" + name + "]");
     }
 }
