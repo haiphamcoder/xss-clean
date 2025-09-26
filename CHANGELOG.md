@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-09-26
+
+### Fixed
+
+- **Configuration Respect**: `@NoXss` annotation now properly respects `xss.enabled=false` configuration
+- **Property Reading**: Use `@Value` annotation to read `xss.enabled` property directly
+- **Validation Skip**: Skip validation completely when XSS is disabled
+- **Test Coverage**: Added dedicated test for disabled XSS validation scenario
+
+### Improved
+
+- **Configuration Handling**: Better handling of configuration properties in production environments
+- **Backward Compatibility**: Maintains full compatibility with existing code
+- **Test Quality**: Enhanced test coverage with specific scenarios
+
 ## [1.0.2] - 2025-09-26
 
 ### Fixed
@@ -126,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/haiphamcoder/xss-clean/compare/v0.1.0...v1.0.0
