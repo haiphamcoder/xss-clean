@@ -24,6 +24,11 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     @Value("${xss.enabled:true}")
     private boolean xssEnabled;
 
+    /**
+     * Custom message from annotation.
+     */
+    private String message;
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -32,6 +37,9 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
      */
     @Override
     public void initialize(NoXss constraintAnnotation) {
+        // Store the custom message from annotation
+        this.message = constraintAnnotation.message();
+        
         // Only initialize cleaner if XSS is enabled
         if (xssEnabled) {
             try {
@@ -69,6 +77,15 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
         }
             
         String cleaned = cleaner.clean(value);
-        return cleaned.equals(value);
+        boolean isValid = cleaned.equals(value);
+        
+        // If validation fails, set the custom message
+        if (!isValid) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(message)
+                   .addConstraintViolation();
+        }
+        
+        return isValid;
     }
 }
