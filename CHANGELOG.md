@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2025-09-26
+
+### Added
+
+- **Comprehensive XSS Configuration Support**: Implemented profile-based Jsoup safelist configuration
+- **Profile-based Filtering**: Support for multiple XSS profiles (strict, lenient, custom) with different tag/attribute rules
+- **Violation Handling**: Added `throw-on-violation` and `log-violation` configuration options
+- **Custom Profile Support**: Dynamic profile creation with `allowed-tags` and `allowed-attributes`
+- **Enhanced Logging**: Context-aware XSS violation logging with parameter/header information
+- **Security Exception Handling**: Optional `SecurityException` throwing on XSS detection
+- **Profile Configuration Tests**: Added `ProfileConfigurationTest` for testing profile-based filtering
+- **Violation Handling Tests**: Added `ViolationHandlingTest` for testing violation configuration
+
+### Enhanced
+
+- **XssAutoConfiguration**: Now creates `JsoupCleanerService` with profile-based safelist
+- **XssRequestWrapper**: Enhanced with logging and exception handling capabilities
+- **Configuration Flexibility**: Support for multiple security levels through profiles
+- **Production Readiness**: Better support for development and production environments
+
+### Configuration
+
+- **Profile Configuration**:
+
+  ```yaml
+  xss:
+    profiles:
+      strict:
+        allowed-tags: "p,br"
+        allowed-attributes: "class"
+      lenient:
+        allowed-tags: "p,br,b,i,a,img"
+        allowed-attributes: "class,href,src"
+      custom:
+        allowed-tags: "div,span,p,br,strong,em"
+        allowed-attributes: "class,id,style"
+    default-profile: "strict"
+    throw-on-violation: false
+    log-violation: true
+  ```
+
+### Fixed
+
+- **Configuration Usage**: All XSS configuration properties now have actual functionality
+- **Profile-based Filtering**: Proper safelist creation from profile configuration
+- **Violation Detection**: Accurate XSS detection with proper logging and exception handling
+
 ## [1.0.4] - 2025-09-26
 
 ### Added
