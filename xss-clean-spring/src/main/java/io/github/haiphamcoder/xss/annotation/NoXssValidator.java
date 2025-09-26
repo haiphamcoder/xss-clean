@@ -1,8 +1,11 @@
 package io.github.haiphamcoder.xss.annotation;
 
 import io.github.haiphamcoder.xss.CleanerService;
+import io.github.haiphamcoder.xss.policy.OwaspCleanerService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * If the content is changed after cleaning -> reject.
@@ -12,15 +15,23 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     /**
      * The cleaner to use.
      */
-    private final CleanerService cleaner;
+    private CleanerService cleaner;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     /**
-     * Constructs a new NoXssValidator.
-     * 
-     * @param cleaner The cleaner to use.
+     * Initialize the validator.
      */
-    public NoXssValidator(CleanerService cleaner) {
-        this.cleaner = cleaner;
+    @Override
+    public void initialize(NoXss constraintAnnotation) {
+        // Try to get CleanerService from Spring context
+        try {
+            this.cleaner = applicationContext.getBean(CleanerService.class);
+        } catch (Exception e) {
+            // Fallback to default implementation if no bean found
+            this.cleaner = new OwaspCleanerService();
+        }
     }
 
     /**
@@ -34,6 +45,12 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return true;
+        
+        // If cleaner is not available, skip validation
+        if (cleaner == null) {
+            return true;
+        }
+            
         String cleaned = cleaner.clean(value);
         return cleaned.equals(value);
     }

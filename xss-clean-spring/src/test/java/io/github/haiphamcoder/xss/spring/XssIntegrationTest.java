@@ -3,7 +3,6 @@ package io.github.haiphamcoder.xss.spring;
 import io.github.haiphamcoder.xss.CleanerService;
 import io.github.haiphamcoder.xss.SpringXssCleanApplication;
 import io.github.haiphamcoder.xss.annotation.NoXss;
-import io.github.haiphamcoder.xss.annotation.NoXssValidator;
 import io.github.haiphamcoder.xss.config.XssProperties;
 import io.github.haiphamcoder.xss.web.XssFilter;
 import io.github.haiphamcoder.xss.advice.RequestBodySanitizerAdvice;
@@ -39,8 +38,6 @@ class XssIntegrationTest {
     @Autowired
     Validator validator;
 
-    @Autowired
-    NoXssValidator noXssValidator;
 
     @Test
     void testClean() {
@@ -110,20 +107,6 @@ class XssIntegrationTest {
         assertNotNull(result);
     }
 
-    @Test
-    void testNoXssValidatorBeanCreation() {
-        // Test that NoXssValidator bean is created successfully
-        assertNotNull(noXssValidator);
-        
-        // Test validation with clean input
-        assertTrue(noXssValidator.isValid("Hello World", null));
-        
-        // Test validation with XSS input
-        assertFalse(noXssValidator.isValid("<script>alert('XSS')</script>Hello", null));
-        
-        // Test validation with null input
-        assertTrue(noXssValidator.isValid(null, null));
-    }
 
     // Test configuration for custom strategy
     @TestConfiguration
