@@ -1,12 +1,10 @@
 package io.github.haiphamcoder.xss.annotation;
 
 import io.github.haiphamcoder.xss.CleanerService;
-import io.github.haiphamcoder.xss.policy.OwaspCleanerService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 
 /**
  * If the content is changed after cleaning -> reject.
@@ -16,13 +14,7 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     /**
      * The cleaner to use.
      */
-    private CleanerService cleaner;
-
-    /**
-     * XSS enabled flag from configuration.
-     */
-    @Value("${xss.enabled:true}")
-    private boolean xssEnabled;
+    private final CleanerService cleaner;
 
     /**
      * Custom message from annotation.
@@ -30,7 +22,9 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     private String message;
 
     @Autowired
-    private ApplicationContext applicationContext;
+    public NoXssValidator(ObjectProvider<CleanerService> cleanerProvider) {
+        this.cleaner = cleanerProvider.getIfAvailable();
+    }
 
     /**
      * Initialize the validator.
@@ -39,19 +33,6 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     public void initialize(NoXss constraintAnnotation) {
         // Store the custom message from annotation
         this.message = constraintAnnotation.message();
-        
-        // Only initialize cleaner if XSS is enabled
-        if (xssEnabled) {
-            try {
-                this.cleaner = applicationContext.getBean(CleanerService.class);
-            } catch (Exception e) {
-                // Fallback to default implementation if no bean found
-                this.cleaner = new OwaspCleanerService();
-            }
-        } else {
-            // If XSS is disabled, set cleaner to null to skip validation
-            this.cleaner = null;
-        }
     }
 
     /**
@@ -63,19 +44,13 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
      */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null)
-            return true;
         
-        // If XSS is disabled, skip validation
-        if (!xssEnabled) {
+        // If value is null or cleaner is null, skip validation
+        if (value == null || cleaner == null) {
             return true;
         }
-        
-        // If cleaner is not available, skip validation
-        if (cleaner == null) {
-            return true;
-        }
-            
+         
+        // Clean the value
         String cleaned = cleaner.clean(value);
         boolean isValid = cleaned.equals(value);
         

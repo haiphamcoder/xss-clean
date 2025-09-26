@@ -6,8 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,8 +14,6 @@ import java.io.IOException;
  * Filter to sanitize query params + headers.
  */
 public class XssFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(XssFilter.class);
 
     private final CleanerService cleaner;
     private final XssProperties properties;

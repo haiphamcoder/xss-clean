@@ -19,11 +19,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Configuration
-@ConditionalOnProperty(prefix = "xss", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "xss.cleaner", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(XssProperties.class)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class XssAutoConfiguration {
 
+    /**
+     * Creates a CleanerService based on the configured strategy.
+     * 
+     * @param props The XSS properties.
+     * @return The CleanerService.
+     */
     @Bean
     @ConditionalOnMissingBean
     CleanerService cleanerService(XssProperties props) {
@@ -38,19 +44,22 @@ public class XssAutoConfiguration {
 
     /**
      * Creates a Safelist based on the configured profile.
+     * 
+     * @param props The XSS properties.
+     * @return The Safelist.
      */
     private Safelist createSafelistFromProfile(XssProperties props) {
         String profileName = props.getDefaultProfile();
         XssProperties.Profile profile = props.getProfiles().get(profileName);
-        
+
         if (profile == null) {
             // Use default safelist if profile not found
             return Safelist.none();
         }
-        
+
         Safelist safelist = Safelist.none();
         Set<String> addedTags = new HashSet<>();
-        
+
         // Add allowed tags first
         if (StringUtils.hasText(profile.getAllowedTags())) {
             String[] tags = profile.getAllowedTags().split(",");
@@ -60,7 +69,7 @@ public class XssAutoConfiguration {
                 addedTags.add(trimmedTag);
             }
         }
-        
+
         // Add allowed attributes only if we have tags
         if (StringUtils.hasText(profile.getAllowedAttributes()) && !addedTags.isEmpty()) {
             String[] attributes = profile.getAllowedAttributes().split(",");
@@ -72,15 +81,28 @@ public class XssAutoConfiguration {
                 }
             }
         }
-        
+
         return safelist;
     }
 
+    /**
+     * Creates a XssFilter.
+     * 
+     * @param cleanerService The CleanerService.
+     * @param properties     The XSS properties.
+     * @return The XssFilter.
+     */
     @Bean
     XssFilter xssFilter(CleanerService cleanerService, XssProperties properties) {
         return new XssFilter(cleanerService, properties);
     }
 
+    /**
+     * Creates a RequestBodySanitizerAdvice.
+     * 
+     * @param cleanerService The CleanerService.
+     * @return The RequestBodySanitizerAdvice.
+     */
     @Bean
     @ConditionalOnMissingBean
     RequestBodySanitizerAdvice requestBodySanitizerAdvice(CleanerService cleanerService) {
