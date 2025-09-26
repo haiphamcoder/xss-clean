@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2025-09-26
+
+### Added
+
+- **Spring Boot Auto-Configuration Reliability**: Added `spring.factories` as backup mechanism for auto-configuration
+- **Comprehensive Auto-Configuration Tests**: Added `AutoConfigurationTest` with `ApplicationContextRunner` for testing different scenarios
+- **Spring Boot Integration Tests**: Added `SpringBootAutoConfigurationTest` to verify auto-configuration loading
+- **Backward Compatibility**: Support for both Spring Boot 2.7+ (`.imports` file) and older versions (`spring.factories`)
+
+### Fixed
+
+- **Auto-Configuration Issues**: Fixed auto-configuration not working in some environments
+- **Bean Creation Reliability**: Ensured all XSS beans are created correctly in different Spring Boot versions
+- **Test Coverage**: Improved test coverage for auto-configuration scenarios
+
+### Changed
+
+- **Dual Auto-Configuration Support**: Both `META-INF/org.springframework.boot.autoconfigure.AutoConfiguration.imports` and `META-INF/spring.factories` are now included
+- **Test Structure**: Improved test organization with dedicated auto-configuration test classes
+
 ## [1.0.3] - 2025-09-26
 
 ### Fixed
