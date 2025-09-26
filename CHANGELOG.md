@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-09-26
+
+### Added
+
+- **Maven Central Deployment Ready**: Version 1.0.0 release
+- **Enhanced Test Coverage**: 
+  - Core module: 11 comprehensive test cases
+  - Spring module: 8 integration test cases
+- **Spring Boot Auto-Configuration**:
+  - `XssAutoConfiguration` with proper ordering
+  - `RequestBodySanitizerAdvice` bean registration
+  - `XssFilter` for request parameter sanitization
+- **Comprehensive Documentation**:
+  - Detailed README with usage examples
+  - Configuration guide for Spring Boot
+  - Security considerations and best practices
+- **Build System Improvements**:
+  - Maven Central publishing configuration
+  - GPG signing setup
+  - Javadoc generation
+  - Sources and javadoc JARs
+
+### Changed
+
+- **Version Management**: Changed from SNAPSHOT to release version 1.0.0
+- **Spring Integration**: Improved auto-configuration with proper bean ordering
+- **Documentation**: Complete rewrite of README with examples and guides
+
+### Fixed
+
+- **Spring Boot Integration**: Fixed missing bean registrations
+- **Test Coverage**: Added comprehensive test scenarios for all features
+- **Build Configuration**: Proper Maven Central publishing setup
+
+### Security
+
+- **XSS Protection**: OWASP Java HTML Sanitizer and JSoup integration
+- **Input Validation**: `@NoXss` annotation for validation
+- **Request Sanitization**: Automatic sanitization of request parameters and JSON bodies
+
 ## 2025-09-26
 
 ### Added
@@ -47,3 +87,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 [Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/haiphamcoder/xss-clean/compare/v0.1.0...v1.0.0
