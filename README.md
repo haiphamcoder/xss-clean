@@ -1,5 +1,10 @@
 # XSS Clean
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/haiphamcoder/xss-clean)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4+-green.svg)](https://spring.io/projects/spring-boot)
+
 A comprehensive Java library for sanitizing and validating untrusted input to prevent XSS (Cross-Site Scripting) attacks. Provides both standalone utilities and Spring Boot integration.
 
 ## Features
