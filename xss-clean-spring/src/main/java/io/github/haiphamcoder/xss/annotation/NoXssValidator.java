@@ -5,6 +5,7 @@ import io.github.haiphamcoder.xss.policy.OwaspCleanerService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -17,6 +18,12 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
      */
     private CleanerService cleaner;
 
+    /**
+     * XSS enabled flag from configuration.
+     */
+    @Value("${xss.enabled:true}")
+    private boolean xssEnabled;
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -25,12 +32,17 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
      */
     @Override
     public void initialize(NoXss constraintAnnotation) {
-        // Try to get CleanerService from Spring context
-        try {
-            this.cleaner = applicationContext.getBean(CleanerService.class);
-        } catch (Exception e) {
-            // Fallback to default implementation if no bean found
-            this.cleaner = new OwaspCleanerService();
+        // Only initialize cleaner if XSS is enabled
+        if (xssEnabled) {
+            try {
+                this.cleaner = applicationContext.getBean(CleanerService.class);
+            } catch (Exception e) {
+                // Fallback to default implementation if no bean found
+                this.cleaner = new OwaspCleanerService();
+            }
+        } else {
+            // If XSS is disabled, set cleaner to null to skip validation
+            this.cleaner = null;
         }
     }
 
@@ -45,6 +57,11 @@ public class NoXssValidator implements ConstraintValidator<NoXss, String> {
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return true;
+        
+        // If XSS is disabled, skip validation
+        if (!xssEnabled) {
+            return true;
+        }
         
         // If cleaner is not available, skip validation
         if (cleaner == null) {

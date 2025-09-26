@@ -88,6 +88,7 @@ class XssIntegrationTest {
         assertTrue(violations.isEmpty());
     }
 
+
     @Test
     void testRequestBodySanitizerAdviceSupports() {
         assertTrue(requestBodySanitizerAdvice.supports(null, null, null));
@@ -116,7 +117,7 @@ class XssIntegrationTest {
         public XssProperties testXssProperties() {
             XssProperties props = new XssProperties();
             props.setStrategy("jsoup");
-            props.setEnabled(true);
+            props.setEnabled(true); // Keep enabled for most tests
             return props;
         }
     }
