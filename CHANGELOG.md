@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-09-26
+
+### Fixed
+
+- **Critical Fix**: Improved `NoXssValidator` resilience for production environments
+- **Dependency Injection**: Replaced constructor injection with `@Autowired ApplicationContext`
+- **Fallback Mechanism**: Added automatic fallback to `OwaspCleanerService` when `CleanerService` bean not found
+- **Null Safety**: Enhanced null safety checks in validation methods
+- **Auto-Configuration**: Removed manual bean registration to prevent conflicts
+
+### Improved
+
+- **Error Handling**: Better error handling for missing Spring context
+- **Production Stability**: More robust operation in complex Spring environments
+- **Backward Compatibility**: Maintains full compatibility with existing code
+
 ## [1.0.1] - 2025-09-26
 
 ### Fixed
@@ -110,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/haiphamcoder/xss-clean/compare/v0.1.0...v1.0.0
