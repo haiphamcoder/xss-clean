@@ -14,7 +14,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SpringXssCleanApplication.class)
-@TestPropertySource(properties = {"xss.enabled=true"})
+@TestPropertySource(properties = {"xss.cleaner.enabled=true"})
 class CustomMessageTest {
 
     @Autowired

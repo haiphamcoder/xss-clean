@@ -19,7 +19,7 @@ class AutoConfigurationTest {
     @Test
     void testAutoConfigurationWithDefaultProperties() {
         this.contextRunner
-                .withPropertyValues("xss.enabled=true")
+                .withPropertyValues("xss.cleaner.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(CleanerService.class);
                     assertThat(context).hasSingleBean(XssFilter.class);
@@ -31,7 +31,7 @@ class AutoConfigurationTest {
     @Test
     void testAutoConfigurationWhenDisabled() {
         this.contextRunner
-                .withPropertyValues("xss.enabled=false")
+                .withPropertyValues("xss.cleaner.enabled=false")
                 .run(context -> {
                     // When disabled, no beans should be created
                     assertThat(context).doesNotHaveBean(CleanerService.class);
@@ -45,7 +45,7 @@ class AutoConfigurationTest {
     @Test
     void testAutoConfigurationWithJsoupStrategy() {
         this.contextRunner
-                .withPropertyValues("xss.enabled=true", "xss.strategy=jsoup")
+                .withPropertyValues("xss.cleaner.enabled=true", "xss.cleaner.strategy=jsoup")
                 .run(context -> {
                     assertThat(context).hasSingleBean(CleanerService.class);
                     CleanerService cleanerService = context.getBean(CleanerService.class);
@@ -56,7 +56,7 @@ class AutoConfigurationTest {
     @Test
     void testAutoConfigurationWithOwaspStrategy() {
         this.contextRunner
-                .withPropertyValues("xss.enabled=true", "xss.strategy=owasp")
+                .withPropertyValues("xss.cleaner.enabled=true", "xss.cleaner.strategy=owasp")
                 .run(context -> {
                     assertThat(context).hasSingleBean(CleanerService.class);
                     CleanerService cleanerService = context.getBean(CleanerService.class);

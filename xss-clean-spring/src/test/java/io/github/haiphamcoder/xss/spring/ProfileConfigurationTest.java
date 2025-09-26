@@ -12,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SpringXssCleanApplication.class)
 @TestPropertySource(properties = {
-    "xss.enabled=true",
-    "xss.strategy=jsoup",
-    "xss.default-profile=strict",
-    "xss.profiles.strict.allowed-tags=p,br",
-    "xss.profiles.strict.allowed-attributes=class",
-    "xss.profiles.lenient.allowed-tags=p,br,b,i,a,img",
-    "xss.profiles.lenient.allowed-attributes=class,href,src",
-    "xss.profiles.custom.allowed-tags=div,span,p,br,strong,em",
-    "xss.profiles.custom.allowed-attributes=class,id,style"
+    "xss.cleaner.enabled=true",
+    "xss.cleaner.strategy=jsoup",
+    "xss.cleaner.default-profile=strict",
+    "xss.cleaner.profiles.strict.allowed-tags=p,br",
+    "xss.cleaner.profiles.strict.allowed-attributes=class",
+    "xss.cleaner.profiles.lenient.allowed-tags=p,br,b,i,a,img",
+    "xss.cleaner.profiles.lenient.allowed-attributes=class,href,src",
+    "xss.cleaner.profiles.custom.allowed-tags=div,span,p,br,strong,em",
+    "xss.cleaner.profiles.custom.allowed-attributes=class,id,style"
 })
 class ProfileConfigurationTest {
 

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-    "xss.enabled=false"
+    "xss.cleaner.enabled=false"
 })
 class XssDisabledTest {
 

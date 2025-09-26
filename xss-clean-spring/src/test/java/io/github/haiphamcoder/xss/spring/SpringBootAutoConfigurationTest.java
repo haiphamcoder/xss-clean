@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-    "xss.enabled=true",
-    "xss.strategy=owasp"
+    "xss.cleaner.enabled=true",
+    "xss.cleaner.strategy=owasp"
 })
 class SpringBootAutoConfigurationTest {
 

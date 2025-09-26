@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `@NoXss` validator now uses constructor injection and optional `CleanerService` via `ObjectProvider`
 - Removed `ApplicationContext`/`@Value` from validator; simplified initialization
-- `XssAutoConfiguration` property prefix changed to `xss.cleaner.enabled`
+- Auto-configuration remains controlled by `xss.enabled` (no property rename)
 - Removed unused logger in `XssFilter`
 - Disable auto publish in root `pom.xml`
 

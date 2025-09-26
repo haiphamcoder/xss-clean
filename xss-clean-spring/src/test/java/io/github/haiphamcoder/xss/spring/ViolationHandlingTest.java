@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SpringXssCleanApplication.class)
 @TestPropertySource(properties = {
-    "xss.enabled=true",
-    "xss.strategy=jsoup",
-    "xss.throw-on-violation=true",
-    "xss.log-violation=true"
+    "xss.cleaner.enabled=true",
+    "xss.cleaner.strategy=jsoup",
+    "xss.cleaner.throw-on-violation=true",
+    "xss.cleaner.log-violation=true"
 })
 class ViolationHandlingTest {
 
