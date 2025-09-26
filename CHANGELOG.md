@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-09-26
+
+### Fixed
+
+- **Critical Fix**: Resolved `UnsatisfiedDependencyException` when using `@NoXss` annotation
+- **Spring Integration**: Added `NoXssValidator` bean registration in `XssAutoConfiguration`
+- **Dependency Injection**: Fixed constructor dependency injection for validation components
+- **Auto-Configuration**: Improved Spring Boot auto-configuration reliability
+
+### Added
+
+- **Comprehensive Documentation**: Added detailed Vietnamese documentation
+  - `GUIDE.md`: Complete usage guide in Vietnamese
+  - `MIGRATION_GUIDE.md`: Migration guide from previous versions
+  - `TROUBLESHOOTING.md`: Comprehensive troubleshooting guide
+- **Enhanced Testing**: Added test case for `NoXssValidator` bean creation
+- **Better Error Handling**: Improved error messages and debugging information
+
+### Improved
+
+- **Documentation Quality**: Enhanced all documentation with practical examples
+- **Developer Experience**: Better troubleshooting guides and migration support
+- **Code Quality**: Improved test coverage and error handling
+
 ## [1.0.0] - 2025-09-26
 
 ### Added
@@ -86,5 +110,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/haiphamcoder/xss-clean/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/haiphamcoder/xss-clean/compare/v0.1.0...v1.0.0
