@@ -133,10 +133,10 @@ public class UserController {
 
 ```java
 public class User {
-    @NoXss(message = "Tên không được chứa mã độc hại")
+    @NoXss
     private String name;
     
-    @NoXss(message = "Email không được chứa mã độc hại")
+    @NoXss
     private String email;
     
     private String phone; // Không có annotation, sẽ được làm sạch tự động
