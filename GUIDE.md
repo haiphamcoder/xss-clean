@@ -1,8 +1,8 @@
-# XSS Clean v1.0.0
+# XSS Clean v1.0.6
 
 ## 📖 Giới Thiệu
 
-**XSS Clean v1.0.0** là thư viện Java mạnh mẽ giúp bảo vệ ứng dụng khỏi các cuộc tấn công XSS (Cross-Site Scripting). Thư viện cung cấp khả năng làm sạch và xác thực dữ liệu đầu vào không đáng tin cậy một cách tự động và hiệu quả.
+**XSS Clean v1.0.6** là thư viện Java mạnh mẽ giúp bảo vệ ứng dụng khỏi các cuộc tấn công XSS (Cross-Site Scripting). Thư viện cung cấp khả năng làm sạch và xác thực dữ liệu đầu vào không đáng tin cậy một cách tự động và hiệu quả.
 
 ### ✨ Tính Năng Chính
 
@@ -11,6 +11,8 @@
 - **🌱 Spring Boot Tích Hợp**: Auto-configuration và validation tự động
 - **⚡ Hiệu Suất Cao**: Tối ưu hóa cho môi trường production
 - **🔒 An Toàn**: Xử lý circular references và null safety
+- **🎯 OWASP Policy Configuration**: Cấu hình linh hoạt với nhiều policy options
+- **🚨 Custom Exception Handling**: XssViolationException với thông tin chi tiết
 
 ## 🚀 Cài Đặt
 
@@ -23,14 +25,14 @@ Thêm dependency vào `pom.xml`:
 <dependency>
     <groupId>io.github.haiphamcoder</groupId>
     <artifactId>xss-clean-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.6</version>
 </dependency>
 
 <!-- Spring Boot integration (tùy chọn) -->
 <dependency>
     <groupId>io.github.haiphamcoder</groupId>
     <artifactId>xss-clean-spring</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
@@ -38,10 +40,10 @@ Thêm dependency vào `pom.xml`:
 
 ```gradle
 // Core library
-implementation 'io.github.haiphamcoder:xss-clean-core:1.0.0'
+implementation 'io.github.haiphamcoder:xss-clean-core:1.0.6'
 
 // Spring Boot integration
-implementation 'io.github.haiphamcoder:xss-clean-spring:1.0.0'
+implementation 'io.github.haiphamcoder:xss-clean-spring:1.0.6'
 ```
 
 ## 🔧 Sử Dụng Cơ Bản
@@ -93,15 +95,17 @@ System.out.println(user.hobbies); // ["Lập trình", "Hacking"]
 
 Thư viện sẽ tự động cấu hình khi bạn thêm dependency `xss-clean-spring`:
 
-```yaml
-# application.yml
-xss:
-  enabled: true                    # Bật/tắt XSS cleaning
-  strategy: owasp                  # "owasp" hoặc "jsoup"
-  throw-on-violation: false        # Ném exception khi phát hiện XSS
-  log-violation: true             # Ghi log khi phát hiện XSS
-  default-profile: simple         # Profile mặc định
+```properties
+# application.properties
+xss.cleaner.enabled=true
+xss.cleaner.strategy=owasp
+xss.cleaner.throw-on-violation=false
+xss.cleaner.log-violation=true
+xss.cleaner.owasp-policies=NONE
+xss.cleaner.default-profile=strict
 ```
+
+**Lưu ý**: Từ version 1.0.6, cấu hình sử dụng `application.properties` với prefix `xss.cleaner` thay vì YAML.
 
 ### 2. Controller Tự Động Làm Sạch
 
@@ -139,7 +143,32 @@ public class User {
 }
 ```
 
-### 4. Cấu Hình Tùy Chỉnh
+### 4. Custom Exception Handling
+
+```java
+@RestController
+public class UserController {
+    
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        try {
+            // XSS cleaning sẽ tự động ném XssViolationException nếu phát hiện XSS
+            return ResponseEntity.ok(userService.save(user));
+        } catch (XssViolationException e) {
+            // Xử lý exception với thông tin chi tiết
+            log.error("XSS violation detected: {}", e.getMessage());
+            log.error("Context: {}", e.getContext());
+            log.error("Original value: {}", e.getOriginalValue());
+            log.error("Cleaned value: {}", e.getCleanedValue());
+            
+            return ResponseEntity.badRequest()
+                .body("Dữ liệu chứa mã độc hại: " + e.getMessage());
+        }
+    }
+}
+```
+
+### 5. Cấu Hình Tùy Chỉnh
 
 ```java
 @Configuration
@@ -158,6 +187,47 @@ public class XssConfig {
         props.setStrategy("jsoup");
         props.setThrowOnViolation(true);
         return props;
+    }
+}
+```
+
+## 🎯 OWASP Policy Configuration (Mới trong v1.0.6)
+
+### 1. Cấu Hình Multiple Policies
+
+```properties
+# application.properties
+xss.cleaner.strategy=owasp
+xss.cleaner.owasp-policies=NONE,FORMATTING,LINKS
+```
+
+### 2. Các Policy Types Available
+
+- **NONE**: Loại bỏ tất cả HTML tags (mặc định, nghiêm ngặt nhất)
+- **BASIC**: Cho phép formatting và links (tương đương FORMATTING + LINKS)
+- **FORMATTING**: Chỉ cho phép formatting tags (bold, italic, etc.)
+- **LINKS**: Chỉ cho phép link tags
+- **BLOCKS**: Cho phép block elements (paragraphs, headings, etc.)
+- **STYLES**: Cho phép style elements
+- **TABLES**: Cho phép table elements
+- **IMAGES**: Cho phép image elements
+
+### 3. Ví Dụ Sử Dụng
+
+```java
+// Cấu hình programmatically
+@Configuration
+public class OwaspPolicyConfig {
+    
+    @Bean
+    public CleanerService customOwaspCleaner() {
+        // Kết hợp nhiều policies
+        PolicyFactory policy = OwaspPolicy.createCombinedPolicyFactory(
+            OwaspPolicy.FORMATTING,
+            OwaspPolicy.LINKS,
+            OwaspPolicy.BLOCKS
+        );
+        return new OwaspCleanerService(policy);
     }
 }
 ```
@@ -201,8 +271,15 @@ public class BlogController {
     
     @PostMapping
     public ResponseEntity<BlogPost> createPost(@RequestBody @Valid BlogPost post) {
-        // Dữ liệu đã được làm sạch tự động
-        return ResponseEntity.ok(blogService.save(post));
+        try {
+            // Dữ liệu đã được làm sạch tự động
+            // XssViolationException sẽ được throw nếu phát hiện XSS
+            return ResponseEntity.ok(blogService.save(post));
+        } catch (XssViolationException e) {
+            log.error("XSS detected in blog post: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body("Bài viết chứa nội dung không an toàn: " + e.getMessage());
+        }
     }
 }
 
@@ -228,8 +305,14 @@ public class ProductController {
     
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        // Tất cả thông tin sản phẩm được làm sạch tự động
-        return ResponseEntity.ok(productService.save(product));
+        try {
+            // Tất cả thông tin sản phẩm được làm sạch tự động
+            return ResponseEntity.ok(productService.save(product));
+        } catch (XssViolationException e) {
+            log.error("XSS detected in product: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body("Thông tin sản phẩm chứa nội dung không an toàn: " + e.getMessage());
+        }
     }
 }
 
@@ -250,26 +333,21 @@ class Product {
 
 ### 1. Profiles Tùy Chỉnh
 
-```yaml
-xss:
-  profiles:
-    strict:
-      allowed-tags: "p,br"
-      allowed-attributes: "class"
-    lenient:
-      allowed-tags: "p,br,b,i,a,img"
-      allowed-attributes: "class,href,src"
-    custom:
-      allowed-tags: "div,span,p,br,strong,em"
-      allowed-attributes: "class,id,style"
+```properties
+# application.properties
+xss.cleaner.profiles.strict.allowed-tags=p,br
+xss.cleaner.profiles.strict.allowed-attributes=class
+xss.cleaner.profiles.lenient.allowed-tags=p,br,b,i,a,img
+xss.cleaner.profiles.lenient.allowed-attributes=class,href,src
+xss.cleaner.profiles.custom.allowed-tags=div,span,p,br,strong,em
+xss.cleaner.profiles.custom.allowed-attributes=class,id,style
 ```
 
 ### 2. Logging Configuration
 
-```yaml
-logging:
-  level:
-    io.github.haiphamcoder.xss: DEBUG
+```properties
+# application.properties
+logging.level.io.github.haiphamcoder.xss=DEBUG
 ```
 
 ### 3. Performance Tuning
@@ -414,7 +492,96 @@ public class XssHealthIndicator implements HealthIndicator {
 
 ## 🎯 Kết Luận
 
-XSS Clean v1.0.0 cung cấp một giải pháp toàn diện và dễ sử dụng để bảo vệ ứng dụng Java khỏi các cuộc tấn công XSS. Với tích hợp Spring Boot mạnh mẽ và khả năng làm sạch tự động, thư viện giúp developers tập trung vào business logic mà không phải lo lắng về bảo mật XSS.
+XSS Clean v1.0.6 cung cấp một giải pháp toàn diện và dễ sử dụng để bảo vệ ứng dụng Java khỏi các cuộc tấn công XSS. Với tích hợp Spring Boot mạnh mẽ, khả năng làm sạch tự động, và các tính năng mới như OWASP Policy Configuration và Custom Exception Handling, thư viện giúp developers tập trung vào business logic mà không phải lo lắng về bảo mật XSS.
+
+### 🆕 Tính Năng Mới trong v1.0.6
+
+- **OWASP Policy Configuration**: Cấu hình linh hoạt với nhiều policy options
+- **Custom Exception Handling**: XssViolationException với thông tin chi tiết
+- **Enhanced Configuration**: Sử dụng `application.properties` với prefix `xss.cleaner`
+- **Multiple Policy Support**: Kết hợp nhiều OWASP policies
+
+## 🔄 Migration Guide từ v1.0.5
+
+### 1. Cập Nhật Dependencies
+
+```xml
+<!-- Cập nhật version -->
+<dependency>
+    <groupId>io.github.haiphamcoder</groupId>
+    <artifactId>xss-clean-spring</artifactId>
+    <version>1.0.6</version>
+</dependency>
+```
+
+### 2. Cập Nhật Configuration
+
+**Trước (v1.0.5):**
+
+```yaml
+# application.yml
+xss:
+  enabled: true
+  strategy: owasp
+  throw-on-violation: false
+  log-violation: true
+```
+
+**Sau (v1.0.6):**
+
+```properties
+# application.properties
+xss.cleaner.enabled=true
+xss.cleaner.strategy=owasp
+xss.cleaner.throw-on-violation=false
+xss.cleaner.log-violation=true
+xss.cleaner.owasp-policies=NONE
+```
+
+### 3. Cập Nhật Exception Handling
+
+**Trước (v1.0.5):**
+
+```java
+try {
+    // XSS cleaning
+} catch (SecurityException e) {
+    // Handle exception
+}
+```
+
+**Sau (v1.0.6):**
+
+```java
+try {
+    // XSS cleaning
+} catch (XssViolationException e) {
+    // Handle exception with detailed info
+    log.error("Context: {}", e.getContext());
+    log.error("Original: {}", e.getOriginalValue());
+    log.error("Cleaned: {}", e.getCleanedValue());
+}
+```
+
+### 4. Sử Dụng OWASP Policy Configuration
+
+**Trước (v1.0.5):**
+
+```java
+// Chỉ có thể cấu hình một policy
+PolicyFactory policy = Sanitizers.FORMATTING;
+```
+
+**Sau (v1.0.6):**
+
+```java
+// Có thể kết hợp nhiều policies
+PolicyFactory policy = OwaspPolicy.createCombinedPolicyFactory(
+    OwaspPolicy.FORMATTING,
+    OwaspPolicy.LINKS,
+    OwaspPolicy.BLOCKS
+);
+```
 
 ### Liên Hệ và Hỗ Trợ
 
