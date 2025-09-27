@@ -300,8 +300,8 @@ mvn -pl xss-clean-core -am clean test
 
 | Java | Spring Boot | xss-clean |
 |------|-------------|-----------|
-| 17   | 3.4+        | 1.0.0     |
-| 17   | 3.5+        | 1.0.0     |
+| 17   | 3.4+        | 1.0.6     |
+| 17   | 3.5+        | 1.0.6     |
 
 ## License
 
