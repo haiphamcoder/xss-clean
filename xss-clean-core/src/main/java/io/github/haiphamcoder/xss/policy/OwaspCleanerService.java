@@ -1,7 +1,7 @@
 package io.github.haiphamcoder.xss.policy;
 
+import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
 
 import io.github.haiphamcoder.xss.CleanerService;
 import io.github.haiphamcoder.xss.ReflectionCleaner;
@@ -19,7 +19,7 @@ public class OwaspCleanerService implements CleanerService {
      * Constructs a new OwaspCleanerService with the default policy.
      */
     public OwaspCleanerService() {
-        this.policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+        this.policy = new HtmlPolicyBuilder().toFactory(); // Remove all HTML tags
     }
 
     /**

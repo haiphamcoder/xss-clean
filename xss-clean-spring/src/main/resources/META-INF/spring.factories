@@ -1,3 +1,2 @@
 # Auto Configuration
-org.springframework.boot.autoconfigure.AutoConfiguration=\
-io.github.haiphamcoder.xss.config.XssAutoConfiguration
+org.springframework.boot.autoconfigure.AutoConfiguration=io.github.haiphamcoder.xss.config.XssAutoConfiguration

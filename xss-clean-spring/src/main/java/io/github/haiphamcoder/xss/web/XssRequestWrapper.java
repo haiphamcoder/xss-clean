@@ -2,6 +2,7 @@ package io.github.haiphamcoder.xss.web;
 
 import io.github.haiphamcoder.xss.CleanerService;
 import io.github.haiphamcoder.xss.config.XssProperties;
+import io.github.haiphamcoder.xss.exception.XssViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
@@ -15,6 +16,9 @@ import java.util.*;
 public class XssRequestWrapper extends HttpServletRequestWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(XssRequestWrapper.class);
+    private static final String PARAMETER_PREFIX = "parameter[";
+    private static final String HEADER_PREFIX = "header[";
+    private static final String SUFFIX = "]";
 
     /**
      * The cleaner to use.
@@ -29,8 +33,8 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Constructs a new XssRequestWrapper.
      * 
-     * @param request The request to wrap.
-     * @param cleaner The cleaner to use.
+     * @param request    The request to wrap.
+     * @param cleaner    The cleaner to use.
      * @param properties The XSS properties.
      */
     public XssRequestWrapper(HttpServletRequest request, CleanerService cleaner, XssProperties properties) {
@@ -42,7 +46,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Cleans a value with logging and exception handling.
      * 
-     * @param value The value to clean.
+     * @param value   The value to clean.
      * @param context The context for logging (e.g., parameter name).
      * @return The cleaned value.
      */
@@ -50,22 +54,22 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         if (value == null) {
             return null;
         }
-        
+
         String cleaned = cleaner.clean(value);
-        
+
         // Check if content was changed (XSS detected)
         if (!value.equals(cleaned)) {
             // Log violation if enabled
             if (properties.isLogViolation()) {
                 logger.warn("XSS violation detected in {}: '{}' -> '{}'", context, value, cleaned);
             }
-            
+
             // Throw exception if enabled
             if (properties.isThrowOnViolation()) {
-                throw new SecurityException("XSS violation detected in " + context + ": " + value);
+                throw new XssViolationException(context, value, cleaned);
             }
         }
-        
+
         return cleaned;
     }
 
@@ -78,7 +82,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getParameter(String name) {
         String value = super.getParameter(name);
-        return cleanValue(value, "parameter[" + name + "]");
+        return cleanValue(value, PARAMETER_PREFIX + name + SUFFIX);
     }
 
     /**
@@ -94,7 +98,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
             return new String[0];
         }
         return Arrays.stream(values)
-                .map(value -> cleanValue(value, "parameter[" + name + "]"))
+                .map(value -> cleanValue(value, PARAMETER_PREFIX + name + SUFFIX))
                 .toArray(String[]::new);
     }
 
@@ -109,7 +113,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         Map<String, String[]> cleaned = new HashMap<>();
         for (Map.Entry<String, String[]> e : map.entrySet()) {
             String[] newVals = Arrays.stream(e.getValue())
-                    .map(value -> cleanValue(value, "parameter[" + e.getKey() + "]"))
+                    .map(value -> cleanValue(value, PARAMETER_PREFIX + e.getKey() + SUFFIX))
                     .toArray(String[]::new);
             cleaned.put(e.getKey(), newVals);
         }
@@ -125,6 +129,6 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getHeader(String name) {
         String value = super.getHeader(name);
-        return cleanValue(value, "header[" + name + "]");
+        return cleanValue(value, HEADER_PREFIX + name + SUFFIX);
     }
 }

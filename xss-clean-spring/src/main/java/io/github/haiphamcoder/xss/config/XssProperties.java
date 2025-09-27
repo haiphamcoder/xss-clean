@@ -1,6 +1,8 @@
 package io.github.haiphamcoder.xss.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -37,6 +39,20 @@ public class XssProperties {
      * The profiles to use for XSS cleaning.
      */
     private Map<String, Profile> profiles = new HashMap<>();
+
+    /**
+     * The OWASP policies for XSS cleaning.
+     * Only applicable when strategy is "owasp".
+     * Default: [NONE] - removes all HTML tags
+     */
+    private List<OwaspPolicy> owaspPolicies = new ArrayList<>();
+    
+    /**
+     * Constructor to initialize default OWASP policy.
+     */
+    public XssProperties() {
+        this.owaspPolicies.add(OwaspPolicy.NONE);
+    }
 
     /**
      * Gets whether XSS cleaning is enabled.
@@ -141,6 +157,24 @@ public class XssProperties {
      */
     public void setProfiles(Map<String, Profile> profiles) {
         this.profiles = profiles;
+    }
+
+    /**
+     * Gets the OWASP policies for XSS cleaning.
+     * 
+     * @return The OWASP policies list.
+     */
+    public List<OwaspPolicy> getOwaspPolicies() {
+        return owaspPolicies;
+    }
+
+    /**
+     * Sets the OWASP policies for XSS cleaning.
+     * 
+     * @param owaspPolicies The OWASP policies list.
+     */
+    public void setOwaspPolicies(List<OwaspPolicy> owaspPolicies) {
+        this.owaspPolicies = owaspPolicies;
     }
 
     /**

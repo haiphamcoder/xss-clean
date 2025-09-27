@@ -4,8 +4,10 @@ import io.github.haiphamcoder.xss.CleanerService;
 import io.github.haiphamcoder.xss.advice.RequestBodySanitizerAdvice;
 import io.github.haiphamcoder.xss.policy.JsoupCleanerService;
 import io.github.haiphamcoder.xss.policy.OwaspCleanerService;
+import io.github.haiphamcoder.xss.policy.SanitizerStrategy;
 import io.github.haiphamcoder.xss.web.XssFilter;
 import org.jsoup.safety.Safelist;
+import org.owasp.html.PolicyFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +18,7 @@ import org.springframework.core.Ordered;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -33,12 +36,14 @@ public class XssAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     CleanerService cleanerService(XssProperties props) {
-        if ("jsoup".equalsIgnoreCase(props.getStrategy())) {
+        if (SanitizerStrategy.JSOUP.name().equalsIgnoreCase(props.getStrategy())) {
             // Create JsoupCleanerService with profile-based safelist
             Safelist safelist = createSafelistFromProfile(props);
             return new JsoupCleanerService(safelist);
         } else {
-            return new OwaspCleanerService();
+            // Create OwaspCleanerService with configured policy
+            PolicyFactory policy = createPolicyFromConfiguration(props);
+            return new OwaspCleanerService(policy);
         }
     }
 
@@ -83,6 +88,25 @@ public class XssAutoConfiguration {
         }
 
         return safelist;
+    }
+
+    /**
+     * Creates a PolicyFactory based on the configured OWASP policy.
+     * 
+     * @param props The XSS properties.
+     * @return The PolicyFactory.
+     */
+    private PolicyFactory createPolicyFromConfiguration(XssProperties props) {
+        List<OwaspPolicy> policies = props.getOwaspPolicies();
+
+        if (policies == null || policies.isEmpty()) {
+            // Default to NONE policy if no policies configured
+            return OwaspPolicy.NONE.createPolicyFactory();
+        }
+
+        // Create combined policy from all configured policies
+        return OwaspPolicy.createCombinedPolicyFactory(
+                policies.toArray(new OwaspPolicy[0]));
     }
 
     /**

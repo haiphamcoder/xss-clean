@@ -1,6 +1,6 @@
 # XSS Clean
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/haiphamcoder/xss-clean)
+[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/haiphamcoder/xss-clean)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4+-green.svg)](https://spring.io/projects/spring-boot)
@@ -64,14 +64,13 @@ Add dependency:
 </dependency>
 ```
 
-Configure in `application.yml`:
+Configure in `application.properties`:
 
-```yaml
-xss:
-  enabled: true
-  strategy: owasp  # or "jsoup"
-  throw-on-violation: false
-  log-violation: true
+```properties
+xss.cleaner.enabled=true
+xss.cleaner.strategy=owasp
+xss.cleaner.throw-on-violation=false
+xss.cleaner.log-violation=true
 ```
 
 The library automatically:
@@ -165,21 +164,71 @@ CleanerService jsoupCleaner = new JsoupCleanerService(customSafelist);
 
 ### Spring Boot Properties
 
-```yaml
-xss:
-  enabled: true                    # Enable/disable XSS cleaning
-  strategy: owasp                  # "owasp" or "jsoup"
-  throw-on-violation: false        # Throw exception on XSS detection
-  log-violation: true             # Log XSS violations
-  default-profile: simple         # Default cleaning profile
-  profiles:                       # Custom profiles
-    strict:
-      allowed-tags: "p,br"
-      allowed-attributes: "class"
-    lenient:
-      allowed-tags: "p,br,b,i,a,img"
-      allowed-attributes: "class,href,src"
+```properties
+# Enable/disable XSS cleaning
+xss.cleaner.enabled=true
+# Strategy: "owasp" or "jsoup"
+xss.cleaner.strategy=owasp
+# Throw XssViolationException on XSS detection
+xss.cleaner.throw-on-violation=false
+# Log XSS violations
+xss.cleaner.log-violation=true
+
+# OWASP policies configuration (only applicable when strategy is "owasp")
+xss.cleaner.owasp-policies=NONE
+
+# JSoup profiles (only applicable when strategy is "jsoup")
+xss.cleaner.default-profile=strict
+xss.cleaner.profiles.strict.allowed-tags=p,br
+xss.cleaner.profiles.strict.allowed-attributes=class
+xss.cleaner.profiles.lenient.allowed-tags=p,br,b,i,a,img
+xss.cleaner.profiles.lenient.allowed-attributes=class,href,src
 ```
+
+### OWASP Policy Options
+
+When using `strategy=owasp`, you can configure multiple policies in a comma-separated list:
+
+```properties
+xss.cleaner.strategy=owasp
+xss.cleaner.owasp-policies=NONE,FORMATTING,LINKS
+```
+
+Available policy types:
+
+- `NONE`: Remove all HTML tags (default, most restrictive)
+- `BASIC`: Allow formatting and links (equivalent to FORMATTING + LINKS)
+- `FORMATTING`: Allow only formatting tags (bold, italic, etc.)
+- `LINKS`: Allow only link tags
+- `BLOCKS`: Allow block elements (paragraphs, headings, etc.)
+- `STYLES`: Allow style elements
+- `TABLES`: Allow table elements
+- `IMAGES`: Allow image elements
+
+**Note**: Multiple policies are combined using AND logic. For example, `FORMATTING,LINKS` allows both formatting and link tags.
+
+### Exception Handling
+
+When `xss.cleaner.throw-on-violation=true` is configured, the library will throw `XssViolationException` when XSS is detected:
+
+```java
+try {
+    // XSS cleaning will throw exception if violation detected
+    String cleaned = xssFilter.clean(input);
+} catch (XssViolationException e) {
+    // Handle XSS violation
+    System.out.println("Context: " + e.getContext());
+    System.out.println("Original: " + e.getOriginalValue());
+    System.out.println("Cleaned: " + e.getCleanedValue());
+}
+```
+
+The `XssViolationException` provides detailed information about the violation:
+
+- `getContext()`: Where the violation occurred (e.g., "parameter[name]")
+- `getOriginalValue()`: The original value that caused the violation
+- `getCleanedValue()`: The cleaned value after sanitization
+- `hasDetailedInfo()`: Whether detailed information is available
 
 ### Programmatic Configuration
 

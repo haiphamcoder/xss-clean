@@ -7,19 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.6] - 2025-09-26
+## [1.0.6] - 2025-09-27
+
+### Added
+
+- **OWASP Policy Configuration**: Added `OwaspPolicy` enum with multiple predefined policies
+- **Multiple Policy Support**: Support for combining multiple OWASP policies using AND logic
+- **Custom Exception Handling**: Added `XssViolationException` with detailed context information
+- **Custom Message Support**: Support for custom messages in `@NoXss` annotation and `XssRequestWrapper`
+- **Enhanced Configuration**: Updated configuration to use `application.properties` with `xss.cleaner` prefix
+- **Comprehensive Documentation**: Updated README with new configuration format and features
 
 ### Changed
 
-- `@NoXss` validator now uses constructor injection and optional `CleanerService` via `ObjectProvider`
-- Removed `ApplicationContext`/`@Value` from validator; simplified initialization
-- Auto-configuration controlled by `xss.cleaner.enabled`
-- Removed unused logger in `XssFilter`
-- Disable auto publish in root `pom.xml`
+- **Configuration Format**: Changed from YAML to Properties format with `xss.cleaner` prefix
+- **OWASP Policy System**: Replaced single policy with enum-based multiple policy system
+- **Exception Handling**: Replaced `SecurityException` with `XssViolationException` for better context
+- **Documentation**: Updated README to use `application.properties` instead of `application.yml`
+- **Default Profile**: Changed JSoup default profile from `simple` to `strict`
+
+### Enhanced
+
+- **XssProperties**: Now supports list of `OwaspPolicy` enums for flexible policy configuration
+- **XssAutoConfiguration**: Enhanced to handle multiple OWASP policies and custom exceptions
+- **XssRequestWrapper**: Added support for custom messages and improved context information
+- **NoXssValidator**: Added `validateAndThrow` method for custom message support
 
 ### Fixed
 
-- Prevent startup failure when `xss.cleaner.enabled=false` by making validator dependency optional
+- **String Literal Duplication**: Fixed code duplication by adding constants for context prefixes
+- **Configuration Consistency**: Ensured all configuration properties use consistent naming
 
 ## [1.0.5] - 2025-09-26
 
@@ -30,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Violation Handling**: Added `throw-on-violation` and `log-violation` configuration options
 - **Custom Profile Support**: Dynamic profile creation with `allowed-tags` and `allowed-attributes`
 - **Enhanced Logging**: Context-aware XSS violation logging with parameter/header information
-- **Security Exception Handling**: Optional `SecurityException` throwing on XSS detection
+- **Security Exception Handling**: Optional `XssViolationException` throwing on XSS detection
 - **Profile Configuration Tests**: Added `ProfileConfigurationTest` for testing profile-based filtering
 - **Violation Handling Tests**: Added `ViolationHandlingTest` for testing violation configuration
 
