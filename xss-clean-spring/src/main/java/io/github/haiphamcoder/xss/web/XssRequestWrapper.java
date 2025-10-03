@@ -95,7 +95,8 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     public String[] getParameterValues(String name) {
         String[] values = super.getParameterValues(name);
         if (values == null) {
-            return new String[0];
+            // Preserve servlet contract: return null when parameter is absent
+            return null;
         }
         return Arrays.stream(values)
                 .map(value -> cleanValue(value, PARAMETER_PREFIX + name + SUFFIX))
